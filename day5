@@ -1,0 +1,97 @@
+import React, { useState, useEffect } from "react";
+
+export default function App() {
+  const [todos, setTodos] = useState(() => {
+    const savedTodos = localStorage.getItem("todos");
+    return savedTodos ? JSON.parse(savedTodos) : [];
+  });
+
+  const [task, setTask] = useState("");
+
+  // Runs whenever todos change
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
+
+  const addTodo = () => {
+    if (task.trim() === "") return;
+
+    const newTodo = {
+      id: Date.now(),
+      text: task,
+      completed: false,
+    };
+
+    setTodos([...todos, newTodo]);
+    setTask("");
+  };
+
+  const toggleTodo = (id) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id
+          ? { ...todo, completed: !todo.completed }
+          : todo
+      )
+    );
+  };
+
+  const deleteTodo = (id) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
+
+  return (
+    <div
+      style={{
+        maxWidth: "500px",
+        margin: "40px auto",
+        padding: "20px",
+        fontFamily: "Arial",
+        border: "1px solid #ddd",
+        borderRadius: "10px",
+      }}
+    >
+      <h2>Todo App</h2>
+
+      <div style={{ display: "flex", gap: "10px" }}>
+        <input
+          type="text"
+          placeholder="Enter task"
+          value={task}
+          onChange={(e) => setTask(e.target.value)}
+          style={{ flex: 1, padding: "8px" }}
+        />
+        <button onClick={addTodo}>Add</button>
+      </div>
+
+      <ul style={{ listStyle: "none", padding: 0, marginTop: "20px" }}>
+        {todos.map((todo) => (
+          <li
+            key={todo.id}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "10px",
+            }}
+          >
+            <span
+              onClick={() => toggleTodo(todo.id)}
+              style={{
+                cursor: "pointer",
+                textDecoration: todo.completed
+                  ? "line-through"
+                  : "none",
+              }}
+            >
+              {todo.text}
+            </span>
+
+            <button onClick={() => deleteTodo(todo.id)}>
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
